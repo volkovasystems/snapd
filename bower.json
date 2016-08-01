@@ -1,0 +1,28 @@
+{
+  "name": "snapd",
+  "version": "0.0.0",
+  "description": "process.nextTick with setTimeout",
+  "main": "snapd.js",
+  "authors": [
+    "Richeve S. Bebedor <richeve.bebedor@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "nextTick",
+    "timeout",
+    "delay",
+    "snapd"
+  ],
+  "homepage": "https://github.com/volkovasystems/snapd",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "asea": "^0.0.3",
+    "called": "^0.0.5"
+  }
+}
