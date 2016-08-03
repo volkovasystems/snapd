@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "authors": [

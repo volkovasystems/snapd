@@ -123,11 +123,15 @@ var snapd = function snapd( procedure, timeout ){
 			clearTimeout( delayedProcedure );
 		}, timeout, procedure, self, cache );
 
+		catcher.timeout = delayedProcedure;
+
 	}else if( asea.server ){
-		process.nextTick( ( function onTick( ){
-			var delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+		var delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+			process.nextTick( ( function onTick( ){
+				var cache = this.cache;
+
 				try{
-					cache.result = procedure.apply( self );
+					cache.result = this.procedure.apply( this.self );
 
 					cache.callback( null, cache.result );
 
@@ -135,15 +139,18 @@ var snapd = function snapd( procedure, timeout ){
 					cache.callback( error );
 				}
 
-				clearTimeout( delayedProcedure );
-			}, this.timeout, this.procedure, this.self, this.cache );
+				clearTimeout( this.timeout );
 
-		} ).bind( {
-			"procedure": procedure,
-			"timeout": timeout,
-			"self": self,
-			"cache": cache
-		} ) );
+			} ).bind( {
+				"cache": cache,
+				"procedure": procedure,
+				"timeout": delayedProcedure,
+				"self": self
+			} ) );
+
+		}, timeout, procedure, self, cache );
+
+		catcher.timeout = delayedProcedure;
 
 	}else{
 		throw new Error( "cannot determine platform procedure" );
