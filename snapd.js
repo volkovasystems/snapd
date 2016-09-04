@@ -49,13 +49,15 @@
 	@include:
 		{
 			"asea": "asea",
-			"called": "called"
+			"called": "called",
+			"zelf": "zelf"
 		}
 	@end-include
 */
 if( typeof window == "undefined" ){
 	var asea = require( "asea" );
 	var called = require( "called" );
+	var zelf = require( "zelf" );
 }
 
 if( typeof window != "undefined" &&
@@ -68,6 +70,12 @@ if( asea.client &&
 	!( "called" in window ) )
 {
 	throw new Error( "called is not defined" );
+}
+
+if( asea.client &&
+	!( "zelf" in window ) )
+{
+	throw new Error( "zelf is not defined" );
 }
 
 var snapd = function snapd( procedure, timeout ){
@@ -86,21 +94,7 @@ var snapd = function snapd( procedure, timeout ){
 
 	timeout = timeout || 0;
 
-	var self = this;
-	if( typeof global != "undefined" ){
-		if( !this ||
-			this === global )
-		{
-			self = global;
-		}
-
-	}else if( typeof window != "undefined" ){
-		if( !this ||
-			this === window )
-		{
-			self = window;
-		}
-	}
+	var self = zelf( this );
 
 	var cache = { "callback": called.bind( self )( ) };
 	var catcher = function catcher( callback ){
