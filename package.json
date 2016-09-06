@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "scripts": {
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/volkovasystems/snapd#readme",
   "dependencies": {
-    "asea": "0.0.3",
-    "called": "^0.1.1",
-    "zelf": "0.0.0"
+    "asea": "^0.1.2",
+    "called": "^0.1.2",
+    "zelf": "0.0.4"
   }
 }
