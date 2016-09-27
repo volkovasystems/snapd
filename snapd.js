@@ -47,6 +47,7 @@
 	@include:
 		{
 			"asea": "asea",
+			"budge": "budge",
 			"called": "called",
 			"zelf": "zelf"
 		}
@@ -54,6 +55,7 @@
 */
 if( typeof window == "undefined" ){
 	var asea = require( "asea" );
+	var budge = require( "budge" );
 	var called = require( "called" );
 	var zelf = require( "zelf" );
 }
@@ -62,6 +64,12 @@ if( typeof window != "undefined" &&
 	!( "asea" in window ) )
 {
 	throw new Error( "asea is not defined" );
+}
+
+if( asea.client &&
+	!( "budge" in window ) )
+{
+	throw new Error( "budge is not defined" );
 }
 
 if( asea.client &&
@@ -76,12 +84,13 @@ if( asea.client &&
 	throw new Error( "zelf is not defined" );
 }
 
-var snapd = function snapd( procedure, timeout ){
+var snapd = function snapd( procedure, timeout, parameter ){
 	/*;
 		@meta-configuration:
 			{
 				"procedure:required": "function",
-				"timeout": "number"
+				"timeout": "number",
+				"parameter": "..."
 			}
 		@end-meta-configuration
 	*/
@@ -101,10 +110,12 @@ var snapd = function snapd( procedure, timeout ){
 		return cache;
 	};
 
+	parameter = budge( arguments, 2 );
+
 	if( asea.client ){
 		var delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
 			try{
-				cache.result = procedure.apply( self );
+				cache.result = procedure.apply( self, parameter );
 
 				cache.callback( null, cache.result );
 
@@ -123,7 +134,7 @@ var snapd = function snapd( procedure, timeout ){
 				var cache = this.cache;
 
 				try{
-					cache.result = this.procedure.apply( this.self );
+					cache.result = this.procedure.apply( this.self, parameter );
 
 					cache.callback( null, cache.result );
 

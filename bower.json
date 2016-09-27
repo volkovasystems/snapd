@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "authors": [
@@ -24,6 +24,7 @@
   "dependencies": {
     "asea": "^0.1.2",
     "called": "^0.1.2",
-    "zelf": "^0.0.4"
+    "zelf": "^0.0.4",
+    "budge": "^0.0.1"
   }
 }
