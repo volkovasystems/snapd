@@ -48,39 +48,38 @@
 		{
 			"asea": "asea",
 			"budge": "budge",
-			"called": "called",
+			"letgo": "letgo",
+			"protype": "protype",
 			"zelf": "zelf"
 		}
 	@end-include
 */
-if( typeof window == "undefined" ){
+
+if( typeof require == "function" ){
 	var asea = require( "asea" );
 	var budge = require( "budge" );
-	var called = require( "called" );
+	var letgo = require( "letgo" );
+	var protype = require( "protype" );
 	var zelf = require( "zelf" );
 }
 
-if( typeof window != "undefined" &&
-	!( "asea" in window ) )
-{
+if( typeof window != "undefined" && !( "asea" in window ) ){
 	throw new Error( "asea is not defined" );
 }
 
-if( asea.client &&
-	!( "budge" in window ) )
-{
+if( typeof window != "undefined" && !( "budge" in window ) ){
 	throw new Error( "budge is not defined" );
 }
 
-if( asea.client &&
-	!( "called" in window ) )
-{
-	throw new Error( "called is not defined" );
+if( typeof window != "undefined" && !( "letgo" in window ) ){
+	throw new Error( "letgo is not defined" );
 }
 
-if( asea.client &&
-	!( "zelf" in window ) )
-{
+if( typeof window != "undefined" && !( "protype" in window ) ){
+	throw new Error( "protype is not defined" );
+}
+
+if( typeof window != "undefined" && !( "zelf" in window ) ){
 	throw new Error( "zelf is not defined" );
 }
 
@@ -95,25 +94,20 @@ var snapd = function snapd( procedure, timeout, parameter ){
 		@end-meta-configuration
 	*/
 
-	if( typeof procedure != "function" ){
+	if( !protype( procedure, FUNCTION ) ){
 		throw new Error( "invalid procedure" );
 	}
 
 	timeout = timeout || 0;
 
-	var self = zelf( this );
+	let self = zelf( this );
 
-	var cache = { "callback": called.bind( self )( ) };
-	var catcher = function catcher( callback ){
-		cache.callback = called.bind( self )( callback );
-
-		return cache;
-	};
+	let catcher = letgo.bind( self )( );
 
 	parameter = budge( arguments, 2 );
 
 	if( asea.client ){
-		var delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+		let delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
 			try{
 				cache.result = procedure.apply( self, parameter );
 
@@ -124,14 +118,14 @@ var snapd = function snapd( procedure, timeout, parameter ){
 			}
 
 			clearTimeout( delayedProcedure );
-		}, timeout, procedure, self, cache );
+		}, timeout, procedure, self, catcher.cache );
 
 		catcher.timeout = delayedProcedure;
 
 	}else if( asea.server ){
-		var delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+		let delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
 			process.nextTick( ( function onTick( ){
-				var cache = this.cache;
+				let cache = this.cache;
 
 				try{
 					cache.result = this.procedure.apply( this.self, parameter );
@@ -151,7 +145,7 @@ var snapd = function snapd( procedure, timeout, parameter ){
 				"self": self
 			} ) );
 
-		}, timeout, procedure, self, cache );
+		}, timeout, procedure, self, catcher.cache );
 
 		catcher.timeout = delayedProcedure;
 
@@ -162,6 +156,6 @@ var snapd = function snapd( procedure, timeout, parameter ){
 	return catcher;
 };
 
-if( asea.server ){
+if( typeof module != "undefined" && typeof module.exports != "undefined" ){
 	module.exports = snapd;
 }
