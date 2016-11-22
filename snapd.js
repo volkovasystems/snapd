@@ -42,6 +42,8 @@
 	@module-documentation:
 		Wraps the function in process.nextTick and setTimeout for server based,
 			and setTimeout for client based.
+
+		Callback is optional, this will execute the procedure even if callback is not given.
 	@end-module-documentation
 
 	@include:
@@ -55,35 +57,13 @@
 	@end-include
 */
 
-if( typeof require == "function" ){
-	var asea = require( "asea" );
-	var budge = require( "budge" );
-	var letgo = require( "letgo" );
-	var protype = require( "protype" );
-	var zelf = require( "zelf" );
-}
+const asea = require( "asea" );
+const budge = require( "budge" );
+const letgo = require( "letgo" );
+const protype = require( "protype" );
+const zelf = require( "zelf" );
 
-if( typeof window != "undefined" && !( "asea" in window ) ){
-	throw new Error( "asea is not defined" );
-}
-
-if( typeof window != "undefined" && !( "budge" in window ) ){
-	throw new Error( "budge is not defined" );
-}
-
-if( typeof window != "undefined" && !( "letgo" in window ) ){
-	throw new Error( "letgo is not defined" );
-}
-
-if( typeof window != "undefined" && !( "protype" in window ) ){
-	throw new Error( "protype is not defined" );
-}
-
-if( typeof window != "undefined" && !( "zelf" in window ) ){
-	throw new Error( "zelf is not defined" );
-}
-
-var snapd = function snapd( procedure, timeout, parameter ){
+const snapd = function snapd( procedure, timeout, parameter ){
 	/*;
 		@meta-configuration:
 			{
@@ -125,10 +105,10 @@ var snapd = function snapd( procedure, timeout, parameter ){
 	}else if( asea.server ){
 		let delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
 			process.nextTick( ( function onTick( ){
-				let cache = this.cache;
+				let { cache, parameter, procedure, timeout, self } = this;
 
 				try{
-					cache.result = this.procedure.apply( this.self, parameter );
+					cache.result = procedure.apply( self, parameter );
 
 					cache.callback( null, cache.result );
 
@@ -136,14 +116,22 @@ var snapd = function snapd( procedure, timeout, parameter ){
 					cache.callback( error );
 				}
 
-				clearTimeout( this.timeout );
+				clearTimeout( timeout );
 
 			} ).bind( {
 				"cache": cache,
+				"parameter": parameter,
 				"procedure": procedure,
 				"timeout": delayedProcedure,
 				"self": self
 			} ) );
+			/*;
+				@note:
+					Do not change how we bind this data.
+
+					nextTick procedure has a special way of handling context.
+				@end-note
+			*/
 
 		}, timeout, procedure, self, catcher.cache );
 
@@ -156,6 +144,4 @@ var snapd = function snapd( procedure, timeout, parameter ){
 	return catcher;
 };
 
-if( typeof module != "undefined" && typeof module.exports != "undefined" ){
-	module.exports = snapd;
-}
+module.exports = snapd;
