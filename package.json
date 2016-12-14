@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "scripts": {
@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/volkovasystems/snapd#readme",
   "dependencies": {
-    "asea": "^0.3.0",
-    "budge": "^0.3.0",
-    "letgo": "^0.3.0",
-    "protype": "^0.2.0",
-    "zelf": "^0.2.0"
+    "asea": "^0.4.0",
+    "budge": "^0.4.0",
+    "letgo": "^0.4.0",
+    "protype": "^0.4.0",
+    "zelf": "^0.3.0"
   }
 }
