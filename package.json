@@ -1,10 +1,13 @@
 {
   "name": "snapd",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
+  "support": "snapd.support.js",
+  "deploy": "snapd.deploy.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel snapd.js -o snapd.support.js && webpack",
+    "test": "mocha snapd-test.js"
   },
   "repository": {
     "type": "git",
@@ -23,10 +26,19 @@
   },
   "homepage": "https://github.com/volkovasystems/snapd#readme",
   "dependencies": {
-    "asea": "^0.4.0",
-    "budge": "^0.4.0",
-    "letgo": "^0.4.0",
-    "protype": "^0.4.0",
-    "zelf": "^0.3.0"
+    "asea": "^0.6.0",
+    "babel-runtime": "^6.20.0",
+    "budge": "^0.5.0",
+    "letgo": "^0.5.0",
+    "protype": "^0.7.0",
+    "zelf": "^0.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.21.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-latest": "^6.16.0",
+    "source-map-loader": "^0.1.5",
+    "webpack": "^1.14.0"
   }
 }
