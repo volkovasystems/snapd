@@ -50,7 +50,10 @@
 		{
 			"asea": "asea",
 			"budge": "budge",
+			"harden": "harden",
+			"kein": "kein",
 			"letgo": "letgo",
+			"pringe": "pringe",
 			"protype": "protype",
 			"zelf": "zelf"
 		}
@@ -59,9 +62,14 @@
 
 const asea = require( "asea" );
 const budge = require( "budge" );
+const harden = require( "harden" );
+const kein = require( "kein" );
 const letgo = require( "letgo" );
+const pringe = require( "pringe" );
 const protype = require( "protype" );
 const zelf = require( "zelf" );
+
+harden( "DONE", "done" );
 
 const snapd = function snapd( procedure, timeout, parameter ){
 	/*;
@@ -84,10 +92,24 @@ const snapd = function snapd( procedure, timeout, parameter ){
 
 	let catcher = letgo.bind( self )( );
 
+	harden( "trace", pringe.bind( self )( arguments ), catcher );
+
+	if( kein( snapd.cache, catcher.trace ) ){
+		snapd.cache[ catcher.trace ].halt( );
+	}
+
 	parameter = budge( arguments, 2 );
 
 	if( asea.client ){
-		let delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
+			if( catcher.DONE === DONE ){
+				clearTimeout( catcher.timeout );
+
+				return;
+			}
+
+			let cache = catcher.cache;
+
 			try{
 				cache.result = procedure.apply( self, parameter );
 
@@ -97,15 +119,29 @@ const snapd = function snapd( procedure, timeout, parameter ){
 				cache.callback( error );
 			}
 
-			clearTimeout( delayedProcedure );
-		}, timeout, procedure, self, catcher.cache );
+			clearTimeout( catcher.timeout );
+		}, timeout, procedure, self, catcher );
 
 		catcher.timeout = delayedProcedure;
 
 	}else if( asea.server ){
-		let delayedProcedure = setTimeout( function onTimeout( procedure, self, cache ){
+		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
+			if( catcher.DONE === DONE ){
+				clearTimeout( catcher.timeout );
+
+				return;
+			}
+
 			process.nextTick( ( function onTick( ){
-				let { cache, parameter, procedure, timeout, self } = this;
+				let { catcher, parameter, procedure, self } = this;
+
+				if( catcher.DONE === DONE ){
+					clearTimeout( catcher.timeout );
+
+					return;
+				}
+
+				let cache = catcher.cache;
 
 				try{
 					cache.result = procedure.apply( self, parameter );
@@ -116,13 +152,12 @@ const snapd = function snapd( procedure, timeout, parameter ){
 					cache.callback( error );
 				}
 
-				clearTimeout( timeout );
+				clearTimeout( catcher.timeout );
 
 			} ).bind( {
-				"cache": cache,
+				"catcher": catcher,
 				"parameter": parameter,
 				"procedure": procedure,
-				"timeout": delayedProcedure,
 				"self": self
 			} ) );
 			/*;
@@ -133,7 +168,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 				@end-note
 			*/
 
-		}, timeout, procedure, self, catcher.cache );
+		}, timeout, procedure, self, catcher );
 
 		catcher.timeout = delayedProcedure;
 
@@ -141,7 +176,19 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		throw new Error( "cannot determine platform procedure" );
 	}
 
+	harden( "halt", function halt( ){
+		harden( "DONE", DONE, catcher );
+
+		clearTimeout( catcher.timeout );
+
+		delete snapd.cache[ catcher.trace ];
+	}, catcher );
+
+	snapd.cache[ catcher.trace ] = catcher;
+
 	return catcher;
 };
+
+harden( "cache", snapd.cache || { }, snapd );
 
 module.exports = snapd;
