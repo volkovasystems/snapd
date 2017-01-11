@@ -95,7 +95,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 	harden( "trace", pringe.bind( self )( arguments ), catcher );
 
 	if( kein( snapd.cache, catcher.trace ) ){
-		snapd.cache[ catcher.trace ].halt( );
+		return snapd.cache[ catcher.trace ];
 	}
 
 	parameter = budge( arguments, 2 );
