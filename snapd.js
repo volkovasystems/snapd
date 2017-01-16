@@ -63,6 +63,7 @@
 const asea = require( "asea" );
 const budge = require( "budge" );
 const harden = require( "harden" );
+const impel = require( "impel" );
 const kein = require( "kein" );
 const letgo = require( "letgo" );
 const pringe = require( "pringe" );
@@ -92,10 +93,11 @@ const snapd = function snapd( procedure, timeout, parameter ){
 
 	let catcher = letgo.bind( self )( );
 
-	harden( "trace", pringe.bind( self )( arguments ), catcher );
+	let trace = pringe.bind( self )( arguments );
+	harden( "trace", trace, catcher );
 
-	if( kein( snapd.cache, catcher.trace ) ){
-		return snapd.cache[ catcher.trace ];
+	if( kein( snapd.cache, trace ) && snapd.cache[ trace ].DONE !== DONE ){
+		return snapd.cache[ trace ];
 	}
 
 	parameter = budge( arguments, 2 );
@@ -103,8 +105,6 @@ const snapd = function snapd( procedure, timeout, parameter ){
 	if( asea.client ){
 		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
 			if( catcher.DONE === DONE ){
-				clearTimeout( catcher.timeout );
-
 				return;
 			}
 
@@ -119,7 +119,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 				cache.callback( error );
 			}
 
-			clearTimeout( catcher.timeout );
+			catcher.halt( );
 		}, timeout, procedure, self, catcher );
 
 		catcher.timeout = delayedProcedure;
@@ -127,8 +127,6 @@ const snapd = function snapd( procedure, timeout, parameter ){
 	}else if( asea.server ){
 		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
 			if( catcher.DONE === DONE ){
-				clearTimeout( catcher.timeout );
-
 				return;
 			}
 
@@ -136,8 +134,6 @@ const snapd = function snapd( procedure, timeout, parameter ){
 				let { catcher, parameter, procedure, self } = this;
 
 				if( catcher.DONE === DONE ){
-					clearTimeout( catcher.timeout );
-
 					return;
 				}
 
@@ -152,7 +148,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 					cache.callback( error );
 				}
 
-				clearTimeout( catcher.timeout );
+				catcher.halt( );
 
 			} ).bind( {
 				"catcher": catcher,
@@ -177,14 +173,27 @@ const snapd = function snapd( procedure, timeout, parameter ){
 	}
 
 	harden( "halt", function halt( ){
-		harden( "DONE", DONE, catcher );
+		if( catcher.DONE === DONE ){
+			return;
+		}
+
+		/*;
+			@note:
+				Possible multiple calls to halt method so we use impel.
+			@end-note
+		*/
+		impel( "DONE", DONE, catcher );
 
 		clearTimeout( catcher.timeout );
 
-		delete snapd.cache[ catcher.trace ];
+		delete snapd.cache[ trace ];
 	}, catcher );
 
-	snapd.cache[ catcher.trace ] = catcher;
+	harden( "release", function release( ){
+		delete snapd.cache[ trace ];
+	}, catcher );
+
+	snapd.cache[ trace ] = catcher;
 
 	return catcher;
 };
