@@ -172,6 +172,12 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		throw new Error( "cannot determine platform procedure" );
 	}
 
+	harden( "release", function release( ){
+		if( kein( snapd.cache, trace ) ){
+			delete snapd.cache[ trace ];
+		}
+	}, catcher );
+
 	harden( "halt", function halt( ){
 		if( catcher.DONE === DONE ){
 			return;
@@ -186,11 +192,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 
 		clearTimeout( catcher.timeout );
 
-		delete snapd.cache[ trace ];
-	}, catcher );
-
-	harden( "release", function release( ){
-		delete snapd.cache[ trace ];
+		catcher.release( );
 	}, catcher );
 
 	snapd.cache[ trace ] = catcher;
