@@ -176,6 +176,8 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		if( kein( snapd.cache, trace ) ){
 			delete snapd.cache[ trace ];
 		}
+
+		return catcher;
 	}, catcher );
 
 	harden( "halt", function halt( ){
@@ -193,6 +195,8 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		clearTimeout( catcher.timeout );
 
 		catcher.release( );
+
+		return catcher;
 	}, catcher );
 
 	snapd.cache[ trace ] = catcher;
