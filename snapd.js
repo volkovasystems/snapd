@@ -51,10 +51,12 @@
 			"asea": "asea",
 			"budge": "budge",
 			"harden": "harden",
+			"impel": "impel",
 			"kein": "kein",
 			"letgo": "letgo",
 			"pringe": "pringe",
 			"protype": "protype",
+			"truly": "truly",
 			"zelf": "zelf"
 		}
 	@end-include
@@ -68,9 +70,10 @@ const kein = require( "kein" );
 const letgo = require( "letgo" );
 const pringe = require( "pringe" );
 const protype = require( "protype" );
+const truly = require( "truly" );
 const zelf = require( "zelf" );
 
-harden( "DONE", "done" );
+const DONE = "done";
 
 const snapd = function snapd( procedure, timeout, parameter ){
 	/*;
@@ -87,6 +90,10 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		throw new Error( "invalid procedure" );
 	}
 
+	if( truly( timeout ) && !protype( timeout, NUMBER ) ){
+		throw new Error( "invalid timeout" );
+	}
+
 	timeout = timeout || 0;
 
 	let self = zelf( this );
@@ -96,7 +103,7 @@ const snapd = function snapd( procedure, timeout, parameter ){
 	let trace = pringe.bind( self )( arguments );
 	harden( "trace", trace, catcher );
 
-	if( kein( snapd.cache, trace ) && snapd.cache[ trace ].DONE !== DONE ){
+	if( kein( snapd.cache, trace ) && !snapd.cache[ trace ].done( ) ){
 		return snapd.cache[ trace ];
 	}
 
@@ -104,14 +111,14 @@ const snapd = function snapd( procedure, timeout, parameter ){
 
 	if( asea.client ){
 		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
-			if( catcher.DONE === DONE ){
+			if( catcher.done( ) ){
 				return;
 			}
 
 			let cache = catcher.cache;
 
 			try{
-				cache.result = procedure.apply( self, parameter );
+				cache.result = procedure.apply( self, parameter.concat( cache.parameter ) );
 
 				cache.callback( null, cache.result );
 
@@ -120,27 +127,28 @@ const snapd = function snapd( procedure, timeout, parameter ){
 			}
 
 			catcher.halt( );
+
 		}, timeout, procedure, self, catcher );
 
 		catcher.timeout = delayedProcedure;
 
 	}else if( asea.server ){
 		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
-			if( catcher.DONE === DONE ){
+			if( catcher.done( ) ){
 				return;
 			}
 
 			process.nextTick( ( function onTick( ){
 				let { catcher, parameter, procedure, self } = this;
 
-				if( catcher.DONE === DONE ){
+				if( catcher.done( ) ){
 					return;
 				}
 
 				let cache = catcher.cache;
 
 				try{
-					cache.result = procedure.apply( self, parameter );
+					cache.result = procedure.apply( self, parameter.concat( cache.parameter ) );
 
 					cache.callback( null, cache.result );
 
@@ -172,16 +180,18 @@ const snapd = function snapd( procedure, timeout, parameter ){
 		throw new Error( "cannot determine platform procedure" );
 	}
 
-	harden( "release", function release( ){
+	catcher.release( function release( ){
 		if( kein( snapd.cache, trace ) ){
 			delete snapd.cache[ trace ];
 		}
+	} );
 
-		return catcher;
-	}, catcher );
+	catcher.done( function done( ){
+		return catcher.DONE === DONE;
+	} );
 
 	harden( "halt", function halt( ){
-		if( catcher.DONE === DONE ){
+		if( catcher.done( ) ){
 			return;
 		}
 
