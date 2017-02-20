@@ -30,4 +30,5 @@ pringe \
 protype \
 truly \
 zelf \
---save
+--save \
+--force-latest
