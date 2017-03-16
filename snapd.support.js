@@ -106,7 +106,7 @@ var snapd = function snapd(procedure, timeout, parameter) {
 	var trace = pringe.bind(self)(arguments);
 	harden("trace", trace, catcher);
 
-	if (kein(snapd.cache, trace) && !snapd.cache[trace].done()) {
+	if (kein(trace, snapd.cache) && !snapd.cache[trace].done()) {
 		return snapd.cache[trace];
 	}
 
@@ -184,7 +184,7 @@ var snapd = function snapd(procedure, timeout, parameter) {
 	}
 
 	catcher.release(function release() {
-		if (kein(snapd.cache, trace)) {
+		if (kein(trace, snapd.cache)) {
 			delete snapd.cache[trace];
 		}
 	});
