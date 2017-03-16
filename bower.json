@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "support": "snapd.support.js",
@@ -26,15 +26,15 @@
     "tests"
   ],
   "dependencies": {
-    "asea": "^0.10.0",
-    "budge": "^0.14.0",
-    "harden": "^0.16.0",
-    "impel": "^0.7.0",
-    "kein": "^0.10.0",
-    "letgo": "^0.19.0",
-    "pringe": "^0.4.0",
-    "protype": "^0.17.0",
-    "truly": "^0.13.0",
-    "zelf": "^0.8.0"
+    "asea": "^0.12.0",
+    "budge": "^0.17.0",
+    "harden": "^0.19.0",
+    "impel": "^0.8.0",
+    "kein": "^0.15.0",
+    "letgo": "^0.21.0",
+    "pringe": "^0.6.0",
+    "protype": "^0.20.0",
+    "truly": "^0.16.0",
+    "zelf": "^0.10.0"
   }
 }
