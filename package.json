@@ -1,6 +1,6 @@
 {
   "name": "snapd",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "process.nextTick with setTimeout",
   "main": "snapd.js",
   "support": "snapd.support.js",
@@ -36,7 +36,7 @@
     "harden": "^0.21.0",
     "impel": "^0.14.0",
     "kein": "^0.25.0",
-    "letgo": "^0.29.0",
+    "letgo": "^0.32.0",
     "pringe": "^0.13.0",
     "protype": "^0.21.0",
     "truly": "^0.18.0",
