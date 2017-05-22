@@ -123,10 +123,10 @@ const snapd = function snapd( procedure, timeout, parameter ){
 			try{
 				cache.result = procedure.apply( self, parameter.concat( cache.parameter ) );
 
-				cache.callback( null, cache.result );
+				callback( null, cache.result );
 
 			}catch( error ){
-				cache.callback( error );
+				callback( error );
 			}
 
 			catcher.halt( );
