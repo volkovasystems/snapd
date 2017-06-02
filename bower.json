@@ -23,15 +23,23 @@
     "test",
     "tests"
   ],
+  "resolutions": {
+    "pyck": "^0.32.0",
+    "vound": "^0.25.0",
+    "meton": "^0.1.0",
+    "depher": "^0.33.0",
+    "condev": "^0.12.0",
+    "dephall": "^0.32.0",
+    "enyof": "^0.7.0"
+  },
   "dependencies": {
     "asea": "^0.13.0",
-    "budge": "^0.28.0",
     "harden": "^0.21.0",
-    "impel": "^0.14.0",
     "kein": "^0.25.0",
-    "letgo": "^0.38.0",
+    "letgo": "^0.40.0",
     "pringe": "^0.13.0",
     "protype": "^0.21.0",
+    "shft": "^0.1.0",
     "truly": "^0.18.0",
     "zelf": "^0.11.0"
   }
