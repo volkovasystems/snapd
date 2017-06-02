@@ -1,13 +1,12 @@
 yarn add \
 babel-runtime \
 asea \
-budge \
 harden \
-impel \
 kein \
 letgo \
 pringe \
 protype \
+shft \
 truly \
 zelf \
 --save && \
@@ -21,13 +20,12 @@ webpack \
 --dev && \
 bower install \
 asea \
-budge \
 harden \
-impel \
 kein \
 letgo \
 pringe \
 protype \
+shft \
 truly \
 zelf \
 --save \

@@ -52,13 +52,12 @@
 	@include:
 		{
 			"asea": "asea",
-			"budge": "budge",
 			"harden": "harden",
-			"impel": "impel",
 			"kein": "kein",
 			"letgo": "letgo",
 			"pringe": "pringe",
 			"protype": "protype",
+			"shft": "shft",
 			"truly": "truly",
 			"zelf": "zelf"
 		}
@@ -66,17 +65,14 @@
 */
 
 const asea = require( "asea" );
-const budge = require( "budge" );
 const harden = require( "harden" );
-const impel = require( "impel" );
 const kein = require( "kein" );
 const letgo = require( "letgo" );
 const pringe = require( "pringe" );
 const protype = require( "protype" );
+const shft = require( "shft" );
 const truly = require( "truly" );
 const zelf = require( "zelf" );
-
-const DONE = "done";
 
 const snapd = function snapd( procedure, timeout, parameter ){
 	/*;
@@ -101,116 +97,92 @@ const snapd = function snapd( procedure, timeout, parameter ){
 
 	let self = zelf( this );
 
-	let catcher = letgo.bind( self )( );
+	parameter = shft( arguments, 2 );
+
+	let catcher = letgo.bind( self )( function later( callback ){
+		parameter = parameter.concat( shft( arguments ) );
+
+		if( asea.server ){
+			let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
+				if( catcher.done( ) ){
+					return;
+				}
+
+				process.nextTick( ( function onTick( ){
+					let { callback, catcher, parameter, procedure, self } = this;
+
+					if( catcher.done( ) ){
+						return;
+					}
+
+					try{
+						let result = procedure.apply( self, parameter );
+
+						callback( null, result );
+
+					}catch( error ){
+						callback( error );
+					}
+
+				} ).bind( {
+					"callback": callback,
+					"catcher": catcher,
+					"parameter": parameter,
+					"procedure": procedure,
+					"self": self
+				} ) );
+				/*;
+					@note:
+						Do not change how we bind this data.
+
+						nextTick procedure has a special way of handling context.
+					@end-note
+				*/
+
+			}, timeout, procedure, self, catcher );
+
+			catcher.set( "timeout", delayedProcedure );
+
+		}else if( asea.client ){
+			let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
+				if( catcher.done( ) ){
+					return;
+				}
+
+				try{
+					let result = procedure.apply( self, parameter.concat( catcher.get( "parameter" ) ) );
+
+					callback( null, result );
+
+				}catch( error ){
+					callback( error );
+				}
+
+			}, timeout, procedure, self, catcher );
+
+			catcher.set( "timeout", delayedProcedure );
+
+		}else{
+			throw new Error( "cannot determine platform, platform not supported" );
+		}
+	} );
 
 	let trace = pringe.bind( self )( arguments );
 	harden( "trace", trace, catcher );
 
 	if( kein( trace, snapd.cache ) && !snapd.cache[ trace ].done( ) ){
+		catcher.stop( );
+
 		return snapd.cache[ trace ];
 	}
 
-	parameter = budge( arguments, 2 );
-
-	if( asea.client ){
-		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
-			if( catcher.done( ) ){
-				return;
-			}
-
-			let cache = catcher.cache;
-
-			try{
-				cache.result = procedure.apply( self, parameter.concat( cache.parameter ) );
-
-				cache.callback( null, cache.result );
-
-			}catch( error ){
-				cache.callback( error );
-			}
-
-			catcher.halt( );
-
-		}, timeout, procedure, self, catcher );
-
-		catcher.timeout = delayedProcedure;
-
-	}else if( asea.server ){
-		let delayedProcedure = setTimeout( function onTimeout( procedure, self, catcher ){
-			if( catcher.done( ) ){
-				return;
-			}
-
-			process.nextTick( ( function onTick( ){
-				let { catcher, parameter, procedure, self } = this;
-
-				if( catcher.done( ) ){
-					return;
-				}
-
-				let cache = catcher.cache;
-
-				try{
-					cache.result = procedure.apply( self, parameter.concat( cache.parameter ) );
-
-					cache.callback( null, cache.result );
-
-				}catch( error ){
-					cache.callback( error );
-				}
-
-				catcher.halt( );
-
-			} ).bind( {
-				"catcher": catcher,
-				"parameter": parameter,
-				"procedure": procedure,
-				"self": self
-			} ) );
-			/*;
-				@note:
-					Do not change how we bind this data.
-
-					nextTick procedure has a special way of handling context.
-				@end-note
-			*/
-
-		}, timeout, procedure, self, catcher );
-
-		catcher.timeout = delayedProcedure;
-
-	}else{
-		throw new Error( "cannot determine platform procedure" );
-	}
-
-	catcher.release( function release( ){
+	catcher.on( "release", function release( ){
 		if( kein( trace, snapd.cache ) ){
 			delete snapd.cache[ trace ];
 		}
+
+		clearTimeout( catcher.get( "timeout" ) );
 	} );
-
-	catcher.done( function done( ){
-		return catcher.DONE === DONE;
-	} );
-
-	harden( "halt", function halt( ){
-		if( catcher.done( ) ){
-			return;
-		}
-
-		/*;
-			@note:
-				Possible multiple calls to halt method so we use impel.
-			@end-note
-		*/
-		impel( "DONE", DONE, catcher );
-
-		clearTimeout( catcher.timeout );
-
-		catcher.release( );
-
-		return catcher;
-	}, catcher );
 
 	snapd.cache[ trace ] = catcher;
 
